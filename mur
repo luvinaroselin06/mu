@@ -1,0 +1,619 @@
+To get Daemons
+cd hadoop-2.9.1
+bin/hadoop namenode -format
+sbin/start -all.sh
+jps
+Datanode(wont get)
+Go to files
+Click Hadoop(dir)---&gt;delete datanode
+Come terminal
+sbin/hadoop-daemon.sh start datanode
+jps
+open new terminal after startng all daemons
+cd
+cd apache-hive-2.3.5-bin
+bin/hive
+1] GROUPBY, SORTBY, ORDERBY, CLUSTERBY, DISRTIBUTIVEBY OPERATIONS
+ON MOVIE DATASET USING HIVE:
+ create table user_1(userid string,uname string,uemaild string,uphno string) row format delimited fields terminated
+by&#39;,&#39;stored as textfile;
+ create table movie_1(mid string,mname string,category string) row format delimited fields terminated by &#39;,&#39; stored as
+textfile;
+ create table review_1(movieid string,userid string,rating string) row format delimited fields terminated by &#39;,&#39; stored
+as textfile;
+ LOAD DATA LOCAL INPATH&#39;/home/grg/user_11.txt&#39; into table user_1;
+ LOAD DATA LOCAL INPATH&#39;/home/grg/review_11.txt&#39; into table review_1;
+ LOAD DATA LOCAL INPATH&#39;/home/grg/movie_11.txt&#39; into table movie_1;
+ select userid,movieid,rating from review_1 order by rating DESC;
+ select rating,count(*) from review_1 group by rating;
+ select mid,mname from movie_1 sort by mname;
+ select mid,mname from movie_1 cluster by mid;
+ select mid,mname from movie_1 distribute by mid;
+user_11.txt
+1,arun,arun@gmail.com,9445829999
+2,ajay,ajay@gmail.com,8976542345
+3,arvind,arvind@gmail.com,987654320
+4,arav,arav@gmail.com,9870987098
+5,ragu,ragu@gmail.com,987654321
+movie_11.txt
+01,dev,romantic
+02,kgf,action
+03,comali,comedy
+04,lisa,horror
+05,coco,comedy
+06,june,comedy
+review_11.txt
+m1,u1,5
+
+m2,u3,3
+m3,u4,3
+m4,u5,4.5
+m5,u6,3
+m6,u7,3
+
+2]JOIN OPERATIONS USING HIVE
+ create table customer(cus_id int,name string,acc_type string,address string,acc_bal float)row format delimited fields
+terminated by &#39;,&#39; stored as textfile;
+ create table transaction(tr_id int,cus_id int,tr_type string,amt float,year date)row format delimited fields
+terminated by &#39;,&#39; stored as textfile;
+ load data local inpath &#39;/home/grg/customer1.txt&#39; into table customer;
+ load data local inpath &#39;/home/grg/transaction1.txt&#39; into table transaction;
+ select A.name, A.acc_type, A.address, A.acc_bal, B.tr_id, B.tr_type, B.amt, B.date from customer A join transaction B
+on (A.cus_id = B.cus_id);
+ select A.name, A.acc_type, A.address, A.acc_bal, B.tr_id, B.tr_type, B.amt from customer A right outer join
+transaction B on (A.cus_id = B.cus_id);
+ select A.name, A.acc_type, A.address, A.acc_bal, B.tr_id, B.tr_type, B.amt from customer A full outer join transaction
+B on (A.cus_id = B.cus_id);
+ select A.name, A.acc_type, A.address, A.acc_bal, B.tr_id, B.tr_type, B.amt from customer A left outer join transaction
+B on (A.cus_id = B.cus_id);
+Customer1.txt
+1,aadhi,current,peelamedu,35000.0
+2 kaviya,saving,Rkpuram,20000.0
+3,janani,fixed,ganapathy,21000.0
+4,anu,fixed,peelamedu,35000.0
+5,harini,saving,townhall,29000.0
+Transaction1.txt
+10,1,cash,25000,2021
+11,2,cash,29000,2020
+12,4,cash,5000,2021
+13,3,cash,19000,2020
+14,5,cash,19000,2020
+
+3]VIEWS, INDEXES AND PARTITIONS USING HIVE
+ create table customer027(userid string, name string, status string, country string,amount string) row format delimited
+fields terminated by &#39;,&#39; stored as textfile;
+ load data local inpath &#39;/home/grg/customer003.txt&#39; into table customer027;
+ select * from customer027;
+ create view customerview028 as select * from customer027 where amount&gt;20000;
+ select * from customerview028;
+ CREATE INDEX index10 ON TABLE customer027(userid) as &#39;org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler&#39;
+WITH DEFERRED REBUILD;
+ show index on customer027;
+ create table customerpart025 (userid string, name string, status string) partitioned by (country string) row format
+delimited fields terminated by &#39;,&#39;;
+
+ show partitions customerpart025;
+ INSERT OVERWRITE TABLE customerpart025 PARTITION(country) SELECT
+userid,name,status,country from customer027;
+Here you will get a error
+ create view partitionview023 as select * from customer027 where country=&#39;us&#39;;
+ select * from partitionview023;
+ Describe customerpart025;
+INPUT FILE:
+1,rahul,yes,us,50000
+2,aswin,no,india,25000
+3,siva,yes,us,45000
+4,agnel,no,india,17000
+5,madhu,yes,saudi,20000
+4]MANIPULATION OF CRICKET DATASET USING HIVE
+ create table cricket(id string, name string, year string, runs float) row format delimited fields terminated by &#39;,&#39;
+stored as textfile;
+ load data local inpath &#39;/home/grg/cricket.txt&#39; into table cricket;
+ SELECT year, max(runs) FROM cricket GROUP BY year;
+ SELECT a.year, a.id, a.runs from cricket a JOIN (SELECT year, max(runs) runs FROM cricket GROUP BY year ) b ON (a.year
+= b.year AND a.runs = b.runs);
+cricket.txt
+1,rahul,2016,90
+2,raina,2018,98
+3,virat,2019,99
+4,bravo,2017,93
+5,rayudu,2018,89
+6,dhoni,2017,90
+7,sachin,2018,48
+8,rohit,2020,94
+9,varun,2018,70
+10,yadav,2020,87
+5] EXTRACTION OF JSON DATA USING HIVE QUERY
+ create table employee(str string);
+ load data local inpath &#39;/home/grg/emp.json&#39; overwrite into table employee;
+ select get_json_object(str,&#39;$.id&#39;)as eid,get_json_object(str,&#39;$.name&#39;)as
+ename,get_json_object(str,&#39;$.designation&#39;)as edesignation,get_json_object(str,&#39;$.salary&#39;)as
+ esalary,get_json_object(str,&#39;$.city&#39;)as city from employee;
+Emp.txt
+{ &quot;id&quot;:&quot;101&quot;,&quot;name&quot;:&quot;Aarya&quot; ,&quot;designation&quot;:&quot;sales&quot; ,&quot;salary&quot;:&quot;22000&quot;,&quot;city&quot;:&quot;Karur&quot;}
+{ &quot;id&quot;:&quot;102&quot;,&quot;name&quot;:&quot;Bavani&quot;,&quot;designation&quot;:&quot;Analyst&quot;,&quot;salary&quot;:&quot;40000&quot;,&quot;city&quot;:&quot;Salem&quot;}
+{ &quot;id&quot;:&quot;103&quot;,&quot;name&quot;:&quot;Joseph&quot;,&quot;designation&quot;:&quot;Manager&quot;,&quot;salary&quot;:&quot;50000&quot;,&quot;city&quot;:&quot;Erode&quot;}
+{ &quot;id&quot;:&quot;104&quot;,&quot;name&quot;:&quot;Sarany&quot;,&quot;designation&quot;:&quot;Enginer&quot;,&quot;salary&quot;:&quot;35000&quot;,&quot;city&quot;:&quot;Kovai&quot;}
+{ &quot;id&quot;:&quot;105&quot;,&quot;name&quot;:&quot;Vino1&quot; ,&quot;designation&quot;:&quot;Clerk&quot; ,&quot;salary&quot;:&quot;20000&quot;,&quot;city&quot;:&quot;Erode&quot;}
+6]ANALYSIS OF AIRPORT DATA USING HIVE
+
+ create table Airport(a_id string,name string,country string,IATA_FAA string,ICAO string,latitude string,longitude
+string,altitude string,time_zone string,DST string,TZ string) row format delimited fields terminated by &#39;,&#39; stored as
+textfile;
+ create table Airlines(airline string,name string,alias string,IATA string,ICAO string,callsign string,country
+string,active string) row format delimited fields terminated by &#39;,&#39; stored as textfile;
+ create table Route (airlines string,airline_id string,source_airport string,source_airport_id
+string,destination_airport string,destination_airport_id string,code_share string,stops string,equipments string) row
+format delimited fields terminated by &#39;,&#39; stored as textfile;
+ load data local inpath &#39;/home/grg/airport.txt&#39; overwrite into table Airport;
+ load data local inpath &#39;/home/grg/airline.txt&#39; overwrite into table Airlines;
+ load data local inpath &#39;/home/grg/routes.txt&#39; overwrite into table Route;
+ select * from Airport limit 3;
+ select * from Route where stops=&#39;0&#39;;
+Airlines.txt
+10,spicejet,IA,BEP,BEPO,citrus,India,N
+11,Deccan Airlines,EA,RST,RSTO,jazz,India,Y
+12,Air India,JA,BLR,BLRO,redwood,India,N
+13,Air Asia,AI,ALT,ALTO,dragon,America,N
+14,Indigo,BA,ELT,ELTO,cactus,Europe,N
+Airport.txt
+11,madurai Airport,Salem,India,BEP,BEPO,56.2,25.1,26,5.5,I,india.zone
+12,coimbatore Airport,coimbatore,India,RST,RSTO,67.3,27.1,67,6.7,C,india.zone
+13,trichy Airport,Madurai,India,BLR,BLRO,54.3,32.7,78,4.5,M,india.zone
+14,alaska Airport,alaska,America,ALT,ALTO,67.2,57.4,67,7.2,N,america.zone
+15,bruges,flemish,Europe,ELT,ELTO,92.2,67.2,89,6.1,L,europe.zone
+Routes.txt
+BEP,21,BEPO, ALTO,BFGF,415,N,0,TUV
+RST,22,RSTO,THET,RETO,456,N,1,VUT
+BLR,23,BLRO,FACO,DOCT,430,Y,0,YUT
+ALT,24,ALTO,GORT,TORY,311,N,0,TUR
+BLT,25,BLTO,HORT,ROTY,378,N,3,GUT
+
+
+
+
+1. WORD COUNT 
+val sc=spark.sparkContext
+val rdd=sc.textFile("D:/SPARK AND HIVE DATASETS/Word count.txt")
+val rdd2=rdd.flatMap(f=>f.split(" "))
+val rdd3=rdd2.map(m=>(m,1))
+val rdd4=rdd3.reduceByKey(_+_)
+val rdd5=rdd4.map(a=>(a._2,a._1)).sortByKey()
+rdd5.collect.foreach(println)
+
+
+
+
+
+
+
+
+2. LETTER COUNT:
+
+
+val sc=spark.sparkContext
+val data=sc.textFile("D:/SPARK AND HIVE DATASETS/Word count.txt")
+data.collect
+val splitdata=data.flatMap(line=>line.split(""))
+splitdata.collect
+val mapdata=splitdata.map(word=>(word,1))
+mapdata.collect
+val reducedata=mapdata.reduceByKey(_+_)
+reducedata.collect
+
+
+
+
+
+
+
+
+3. EMPLOYEE SEQUENCE:
+
+val emp = Seq((1,"renu",4,"Sales","Chennai",50000),
+ (2,"banu",5,"Production","cbe",60000),
+ (3,"meenu",3,"Production","Madurai",45000),
+ (4,"charu",2,"Marketing","Salem",35000),
+ (5,"thanu",6,"Production","Trichy",75000),
+ (6,"riya",2,"Sales","Karur",30000))
+import spark.sqlContext.implicits._
+val empDF = emp.toDF(empColumns:_*)
+empDF.show()
+
+a)
+val df1=empDF.select($"name").filter($"dept"==="Production").show()
+
+b)
+val df2=empDF.withColumn("salary",col("salary")+1000).show()
+val dfafterremove=empDF.drop("address").show()
+
+c)
+empDF.withColumnRenamed("dept","Dept Name").show()
+
+d)
+empDF.filter($"salary">50000).show()
+
+f)
+empDF.select("dept").distinct().show()
+
+
+
+
+
+
+
+
+
+
+
+4. DATE AND TIME FUNCTION:
+
+a) retrieve current date
+import org.apache.spark.sql.functions._
+Seq(("2019-01-23"))
+.toDF("Input")	
+.select(
+   current_date()as("current_date"),
+   col("Input"),
+   date_format(col("Input"), "MM-dd-yyyy").as("format")
+   ).show()
+
+
+B)to get the input date, current date and also the differnce in the days between them
+  
+  import org.apache.spark.sql.functions._
+  Seq(("2019-01-23"),("2019-09-20"))
+  .select(col("input"),current_date(),
+      datediff(current_date(),col("input")).as("diff"))
+  .show()
+
+c) to get the input date , current date and the difference in days, months between them
+
+    import org.apache.spark.sql.functions._
+    Seq(("2019-01-23"),("2019-06-24"),("2019-09-20"))
+    .toDF("date")
+    .select(col("date"),current_date(),
+       datediff(current_date(),col("date")).as("diff"))
+
+
+d)to format the current date
+
+
+ import org.apache.spark.sql.functions._
+ Seq(("2019-01-23"))
+ .toDF("input")
+ .select(
+     current_date().as("current_date"),
+     col("input"),
+     date_format(col("input"),"MM-dd-yyyy").as("format")
+     ).show()
+
+e)to retrieve the  current timestamp
+
+
+  import org.apache.spark.sql.functions._
+  val df=Seq((1)).toDF("seq")
+  val curTime=df.withColumn("current_timestamp",current_timestamp().as(
+  "current_timestamp"))
+  curTime.show()
+
+
+
+f)to truncate the months and years
+
+
+import org.apache.spark.sql.functions._
+Seq(("2019-01-23"),("2019-06-24"),("2019-09-20"))
+.toDF("input")
+.select(col("input"),
+     trunc(col("input"),"Month").as("Month_Trunc"),
+     trunc(col("input"),"Year").as("Month_Year"),
+     trunc(col("input"),"Month").as("Month_Trunc")
+     ).show()
+
+h) to get the day of the week(), day of month,next day,week of the year
+
+
+import org.apache.spark.sql.functions._
+Seq(("2019-01-23"),("2019-06-24"),("2019-09-20"))
+.toDF("input")
+.select(col("input"),year(col("input")).as("year"),
+     month(col("input")).as("month"),
+     daysofweek(col("input")).as("daysofweek"),
+     daysofmonth(col("input")).as("daysofmonth"),
+     daysofyear(col("input")).as("daysofyear"),
+     next_day(col("input","Sunday").as("next_day"),
+     weekofyear(col("input")).as("weekofyear")
+     ).show()
+
+
+
+
+
+
+
+
+
+
+
+
+5. MOVIE DATASET
+
+a)
+     val ipRDD=sc.textFile("C:/Users/HP/Downloads/u.data.txt")
+     val ipRDD1=sc.textFile("C:/Users/HP/Downloads/u.item.txt")
+
+b)
+    val mviDRDD = ipRDD.map(l=> (l.split("\t")(1),l.split("\t")(2)))
+    val mvNameDRDD = ipRDD1.map(l => (l.split("\\|")(0),l.split("\\|")(1)))
+
+c)
+    val fiveStarMv = mviDRDD.filter(m => m._2 == "5")
+    val pairRDD = fiveStarMv.map(t => (t,1)) 
+    val fiveStarTotal = pairRDD.reduceByKey((x,y) => x+y)
+    fiveStarTotal.take(10).foreach(println)
+
+d)
+    val movieIDRDD = fiveStarTotal.sortBy(- _._2) 
+    val movieID = movieIDRDD.map(x =>(x._1._1,x._2)) 
+    movieID.count()
+
+e)
+    val joinRDD = movieID.join(mvNameDRDD) 
+    val RESULTRDD = joinRDD.sortBy(_._2._1).map(m => m._1 + "->" + m._2._2) 
+    RESULTRDD.take(10).foreach(println)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+6. JOIN -SCALA
+
+val person = Seq(
+       (0, “bill chambers”, 0, Seq(100)),
+       (1, “matei”, 1, Seq(500,250,100)),
+       (2, “armbrust”, 1, Seq(250,100)),
+       (3, “zaharia”, 2, Seq(250,100)),
+       (4, “Michael”, 2, Seq(50,150)),
+       (5, “raj”, 2, Seq(250,150)),
+       (6, “diya”, 3, Seq(250,150)),
+       (7, “priya”, 4, Seq(200,150)),
+       (8, “anu”, 4, Seq(200,350)),
+       (9, “ajay”, 5, Seq(250,350)),
+       (10, “vijay”, 6, Seq(50,350))).toDF(“id”, “name”, “graduate_program", “spark_status”)
+.show()
+val graduateProgram = Seq(
+       (0, “masters”, “school of information”, “uc berkeley”),
+       (1, “masters”, “EECS”, “uc berkeley”),
+       (2, “ph.d”, “EECS”, “uc berkeley”),
+       (3, “ph.d”, “ECE”, “uc berkeley”),
+       (4, “UG”, “ECE”, “uc berkeley”),
+       (5, “UG”, “diploma”, “uc berkeley”),
+       (6, “masters”, “diploma”, “uc berkeley”),
+       (7, “PG”, “diploma”, “uc berkeley”),
+       (8, “PG”, “diploma”, “uc berkeley”),
+       (9, “masters”, “school of information”, “uc berkeley”),
+       (10, “ph.d”, “school of information”, “uc berkeley”)).toDF(“id”, “degree”,  “department”, “school”)
+.show()
+val sparkStatus = Seq(
+         (500, “vice president”),
+         (100, “contributor”),
+         (250, “PMC member”),
+         (50, “secretary”),	
+         (150, “president”),
+         (200, “general secretary”),
+         (350, “finance”)).toDF(“id”, “status”)
+.show()
+
+person.createOrReplaceTempView("person")
+graduateProgram.createOrReplaceTempView("graduateProgram")
+sparkStatus.createOrReplaceTempView("sparkStatus")
+
+INNER JOIN:
+
+val joinExpression = person.col("graduate_program") === graduateProgram.col("id")
+
+person.join(graduateProgram, joinExpression).show()
+
+var joinType = "inner"
+
+person.join(graduateProgram, joinExpression, joinType).show()
+
+
+OUTER JOIN:
+
+joinType = "outer"
+person.join(graduateProgram, joinExpression, joinType).show()
+
+
+LEFT OUTER JOIN
+
+joinType = "left_outer"
+graduateProgram.join(person, joinExpression, joinType).show()
+
+
+RIGHT OUTER JOIN
+
+joinType = "right_outer"
+person.join(graduateProgram, joinExpression, joinType).show()
+
+
+LEFT SEMI JOINS
+
+joinType = "left_semi"
+graduateProgram.join(person, joinExpression, joinType).show()
+
+
+LEFT ANTI JOIN
+
+joinType = "left_anti"
+graduateProgram.join(person, joinExpression, joinType).show()
+
+
+CROSS JOINS
+
+joinType = "cross"
+graduateProgram.join(person, joinExpression, joinType).show()
+
+
+
+
+
+
+
+
+
+
+7.GROUP BY
+
+val df2 = spark.read.options(Map("inferSchema"->"true","delimiter"->",","header"->"true")).csv("‪C:/Users/HP/Downloads/summer olympic medals.csv")
+
+df2.filter($"Medal"==="Silver" ||$"Medal"==="Gold").groupBy($"Country").count().show()
+
+df2.groupBy($"Country",$"Medal",$"Year").count().show()
+
+df2.groupBy($"Country",$"Medal",$"Gender").count().show()
+
+df2.filter($"Gender"==="Women").groupBy($"Country",$"Medal").count().show()
+
+
+
+
+
+
+
+
+8. SQL QUERIES FOR US PRESIDENT DATASET 
+
+val df_pres = spark.read.format("csv").option("header","true").option("inferSchema","true").load("C:/Users/santhanalakshmi/Desktop/Spark/DA LAB III DATASETS/SPARK AND HIVE DATASETS/uspresi.csv")
+****IF ERROR COMES CHANGE THE SLASH IN THE FILE PATH****
+
+
+df_pres.select($"pres_id",$"pres_dob",$"pres_bs").sort($"pes_bs".asc).show()
+
+a) df_pres.show()
+
+b) df_pres.select($"pres_id",$"pres_dob",$"pres_bs").show()
+
+c) df_pres.alias("Presidenttable").select($"pres_id",$"pres_dob".alias("Date Of Birth"),$"pres_bs").show()
+
+d) df_pres.filter($"pres_bs"==="New York").select($"pres_name",$"pres_dob".alias("DateOf Birth"),$"pres_bs").show()
+
+e) df_pres.filter($"pres_bs"==="New York"||$"pres_bs"==="Ohio").select($"pres_name",$"pres_dob".alias("DateOfBirth"),$"pres_bs").show()
+
+f) df_pres.filter($"pres_bs"==="New York" && $"pres_dob"> "1850-01-01").select($"pres_name",$"pres_dob".alias("Date Of Birth"),$"pres_bs").show()
+
+g) df_pres.filter($"pres_name".like("James%")).select($"pres_name",$"pres_dob").show()
+
+   df_pres.filter(!$"pres_name".like("James%")).select($"pres_name",$"pres_dob",$"pres_bs").show() 
+
+h) df_pres.select($"pres_id",$"pres_dob",$"pres_bs").sort($"pres_bs".asc).show()
+
+
+
+
+
+
+9. RANK AND PERCENTAGE OF STUDENTS :
+
+
+import org.apache.spark.sql.expressions.Window
+import org.apache.spark.sql.functions.rank
+import org.apache.spark.sql.functions._
+val studData=Seq((20001,"Akshara",462,"CS"),
+(20002,"Bala",467,"BIO"),
+(20003,"Hepzi",450,"CHE"),
+(20004,"Jasmine",432,"CS"),
+(20005,"Vaishali",498,"CS"))
+val df=studData.toDF("Stu_ID","Stu_Name","Mark","Dept")
+df.show()
+val windowSpec=Window.partitionBy("Dept").orderBy("Stu_ID")
+df.withColumn("row_number",row_number.over(windowSpec)).show()
+df.withColumn("rank",rank().over(windowSpec)).show()
+df.withColumn("percent_rank",percent_rank().over(windowSpec)).show()
+
+
+
+
+
+
+
+
+10. SCALA PROGRAM FOR BROADCAST 
+
+val states = Map(("NY","NEWYORK"),("CA","CALIFORNIA"),("FL","FLORIDA"))
+val countries = Map(("USA","UNITED STATES OF AMERICA"),("IN","INDIA"))
+val broadcaststates = spark.sparkContext.broadcast(states)
+val broadcastcountries = spark.sparkContext.broadcast(countries)
+val data = Seq(("JAMES","SMITH","USA","CA"),
+("MICHAEL","ROSE","USA","NY"),
+("ROBERT","WILLIAMS","USA","CA"),
+("MARIA","JONES","USA","FL"))
+
+val columns = Seq("firstname","lastname","country","state")
+import spark.sqlContext.implicits._
+val df = data.toDF(columns:_*)
+val df2 = df.map(row=>{
+   val country = row.getString(2)
+   val state = row.getString(3)
+   val fullcountry = broadcastcountries.value.get(country).get
+   val fullstate = broadcaststates.value.get(state).get
+   (row.getString(0),row.getString(1),fullcountry,fullstate)})
+.toDF(columns:_*)
+df2.show(false)
+
+
+
+
+
+
+
+11. SPARK STREAMING
+
+SPARK SHELL
+cd spark(tab)
+bin/spark-shell
+
+import org.apache.spark._
+import org.apache.spark.streaming._
+import org.apache.spark.streaming.StreamingContext._ 
+val conf = new SparkConf().setMaster("local[2]").setAppName("NetworkWordCount")
+sc.stop
+val ssc = new StreamingContext(conf, Seconds(1))
+val lines = ssc.socketTextStream("localhost", 9999)
+val words = lines.flatMap(_.split(" "))
+import org.apache.spark.streaming.StreamingContext._
+val pairs = words.map(word => (word, 1))
+val wordCounts = pairs.reduceByKey(_ + _)
+wordCounts.print()
+ssc.start()    	
+ssc.awaitTermination()
+
+
+
+NEW TERMINAL
+****install netcat
+sudo apt-get install netcat -y**** IF NEEDED
+
+nc -lk 9999 
+
+INPUT IN THIS TERMINAL
+
+
+
+
+
+
+
+
+
+
